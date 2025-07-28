@@ -1,0 +1,114 @@
+[
+  {
+    "id": "9b13eaec-a11f-4ba2-b302-d1f1e44436ea",
+    "timestamp": "2025-07-27T07:23:14.776Z",
+    "Basic Information": {
+      "Owner Name": "Jitendra Kumar Yadav",
+      "Built-up Area": "122",
+      "Number of Floors": "1",
+      "Year of Construction": "2012",
+      "Building Type": "Independent House",
+      "Occupancy": "4, 7",
+      "Climate Zone": "Hot and Dry"
+    },
+    "Building Envelope": {
+      "Wall Type/Insulation": "Insulated",
+      "Roof Type/Insulation": "Insulated",
+      "Window Type": "Single-glazed",
+      "Window to Wall Ratio": "13:56",
+      "Presence of Shading": "Yes"
+    },
+    "Energy Consumption": {
+      "Monthly kWh": "12",
+      "Monthly Bill (INR)": "2222",
+      "Meter Type": "Single Phase",
+      "Net Metering": "Yes",
+      "Tariff Slabs": "Avaliable",
+      "Peak Billing Months": "Jan"
+    },
+    "Solar Feasibility": {
+      "Existing Solar System": "No",
+      "Available Roof Area (sq.m)": "12",
+      "Shadow Analysis": "Yes",
+      "Roof Orientation": "Hole",
+      "Panel Capacity (kW)": "12"
+    },
+    "Appliance Data Per Room": [
+      {
+        "Room Type": "Room 1",
+        "Appliances": [
+          "ac"
+        ],
+        "Appliance Details": {
+          "ac": [
+            {
+              "room1_ac[0][qty]": "1",
+              "room1_ac[0][power]": "22",
+              "room1_ac[0][model]": "GW",
+              "room1_ac[0][usagehrs]": "12",
+              "room1_ac[0][time_start]": "01:12",
+              "room1_ac[0][time_end]": "01:59",
+              "room1_ac[0][age]": "Average"
+            }
+          ]
+        }
+      }
+    ],
+    "Behavioral/Operational": {
+      "Awareness": "High",
+      "Use of Energy Features": "Regularly",
+      "Control Type": "Manual"
+    }
+  },
+  {
+    "id": "b34105e5-bb25-4172-b8a6-3bf533bfc2ec",
+    "timestamp": "2025-07-27T07:28:16.294Z",
+    "Basic Information": {
+      "Owner Name": "Om Narayan Singh",
+      "Built-up Area": "122",
+      "Number of Floors": "4",
+      "Year of Construction": "2012",
+      "Building Type": "Independent House",
+      "Occupancy": "4, 7",
+      "Climate Zone": "Hot and Dry"
+    },
+    "Building Envelope": {
+      "Wall Type/Insulation": "Insulated",
+      "Roof Type/Insulation": "Insulated",
+      "Window Type": "Single-glazed",
+      "Window to Wall Ratio": "13:56",
+      "Presence of Shading": "Yes"
+    },
+    "Energy Consumption": {
+      "Monthly kWh": "12",
+      "Monthly Bill (INR)": "567",
+      "Meter Type": "Three Phase",
+      "Net Metering": "Yes",
+      "Tariff Slabs": "Avaliable",
+      "Peak Billing Months": "Jan"
+    },
+    "Solar Feasibility": {
+      "Existing Solar System": "No",
+      "Available Roof Area (sq.m)": "678",
+      "Shadow Analysis": "Yes",
+      "Roof Orientation": "Hole",
+      "Panel Capacity (kW)": "23"
+    },
+    "Appliance Data Per Room": [
+      {
+        "Room Type": "Room 1",
+        "Appliances": [
+          "ac"
+        ],
+        "Appliance Details": {
+          "ac": []
+        }
+      }
+    ],
+    "Behavioral/Operational": {
+      "Awareness": "Medium",
+      "Use of Energy Features": "Never",
+      "Control Type": "Automated"
+    }
+  }
+]
