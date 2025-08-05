@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { randomUUID } = require('crypto'); // Node 14.17+ (else use 'uuid' package)
+const { randomUUID } = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -10,13 +10,30 @@ const submissionsFile = path.join(__dirname, 'submissions.json');
 app.use(express.json());
 app.use(require('cors')());
 
-// Add a unique ID to every new submission
+// Utility: Load all submissions from file
+function loadSubmissions() {
+  try {
+    if (fs.existsSync(submissionsFile)) {
+      return JSON.parse(fs.readFileSync(submissionsFile, 'utf-8'));
+    }
+  } catch (error) {
+    console.error('Failed to load submissions:', error);
+  }
+  return [];
+}
+
+// Utility: Save all submissions to file
+function saveSubmissions(allSubmissions) {
+  fs.writeFileSync(submissionsFile, JSON.stringify(allSubmissions, null, 2), 'utf-8');
+}
+
+// Submit new audit
 app.post('/submit-audit', (req, res) => {
   const d = req.body;
-  const submissionId = randomUUID(); // Unique ID for this submission
+  const submissionId = randomUUID(); // Unique ID
 
   const labeledSubmission = {
-    id: submissionId, // Unique id here!
+    id: submissionId,
     timestamp: new Date().toISOString(),
 
     "Basic Information": {
@@ -71,51 +88,43 @@ app.post('/submit-audit', (req, res) => {
     }
   };
 
-  // load, append, save
-  let allSubmissions = [];
-  try {
-    if (fs.existsSync(submissionsFile)) {
-      allSubmissions = JSON.parse(fs.readFileSync(submissionsFile, 'utf-8'));
-    }
-  } catch (error) {
-    allSubmissions = [];
-  }
-
+  let allSubmissions = loadSubmissions();
   allSubmissions.push(labeledSubmission);
+  saveSubmissions(allSubmissions);
 
-  fs.writeFileSync(submissionsFile, JSON.stringify(allSubmissions, null, 2), 'utf-8');
   res.json({ status: 'success', id: submissionId });
 });
 
-// Get all submissions
+// Get all submissions or only those after a timestamp (delta fetch)
 app.get('/submissions', (req, res) => {
-  let allSubmissions = [];
-  try {
-    if (fs.existsSync(submissionsFile)) {
-      allSubmissions = JSON.parse(fs.readFileSync(submissionsFile, 'utf-8'));
-    }
-  } catch (error) {
-    allSubmissions = [];
+  let allSubmissions = loadSubmissions();
+
+  // Optional: filter by ?since=ISO_TIMESTAMP
+  const { since } = req.query;
+  if (since) {
+    allSubmissions = allSubmissions.filter(sub =>
+      new Date(sub.timestamp) > new Date(since)
+    );
   }
+
   res.json(allSubmissions);
 });
 
 // Get one submission by ID
 app.get('/submissions/:id', (req, res) => {
-  let allSubmissions = [];
-  try {
-    if (fs.existsSync(submissionsFile)) {
-      allSubmissions = JSON.parse(fs.readFileSync(submissionsFile, 'utf-8'));
-    }
-  } catch (error) {
-    allSubmissions = [];
-  }
+  let allSubmissions = loadSubmissions();
   const submission = allSubmissions.find(s => s.id === req.params.id);
   if (submission) {
     res.json(submission);
   } else {
     res.status(404).json({ error: 'Not found' });
   }
+});
+
+// Optional: clear all submissions (e.g. after local fetch)
+app.post('/clear-submissions', (req, res) => {
+  saveSubmissions([]);
+  res.json({ message: 'Submissions cleared' });
 });
 
 app.listen(PORT, () => {
