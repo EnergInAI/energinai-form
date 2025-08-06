@@ -7,17 +7,25 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const submissionsFile = path.join(__dirname, 'submissions.json');
 
-// Serve the form HTML at the root
+// ✅ Serve static files from "public" folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ✅ Route for home page
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Middleware for JSON and URL-encoded form
+// Optional: route for new.html if you use it separately
+app.get('/new', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'new.html'));
+});
+
+// Middleware for JSON and form handling
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(require('cors')());
 
-// Utility: Load all submissions from file
+// Load submissions
 function loadSubmissions() {
   try {
     if (fs.existsSync(submissionsFile)) {
@@ -29,20 +37,19 @@ function loadSubmissions() {
   return [];
 }
 
-// Utility: Save all submissions to file
+// Save submissions
 function saveSubmissions(allSubmissions) {
   fs.writeFileSync(submissionsFile, JSON.stringify(allSubmissions, null, 2), 'utf-8');
 }
 
-// Submit new audit
+// POST: Submit new audit
 app.post('/submit-audit', (req, res) => {
   const d = req.body;
-  const submissionId = randomUUID(); // Unique ID
+  const submissionId = randomUUID();
 
   const labeledSubmission = {
     id: submissionId,
     timestamp: new Date().toISOString(),
-
     "Basic Information": {
       "Owner Name": d.owner,
       "Built-up Area": d.builtUpArea,
@@ -52,7 +59,6 @@ app.post('/submit-audit', (req, res) => {
       "Occupancy": d.occupancy,
       "Climate Zone": d.climateZone,
     },
-
     "Building Envelope": {
       "Wall Type/Insulation": d.wallInsulation,
       "Roof Type/Insulation": d.roofInsulation,
@@ -60,7 +66,6 @@ app.post('/submit-audit', (req, res) => {
       "Window to Wall Ratio": d.windowWallRatio,
       "Presence of Shading": d.shading,
     },
-
     "Energy Consumption": {
       "Monthly kWh": d.monthlyKwh,
       "Monthly Bill (INR)": d.monthlyBill,
@@ -69,7 +74,6 @@ app.post('/submit-audit', (req, res) => {
       "Tariff Slabs": d.tariff,
       "Peak Billing Months": d.peakMonths,
     },
-
     "Solar Feasibility": {
       "Existing Solar System": d.solarExists,
       "Available Roof Area (sq.m)": d.roofArea,
@@ -77,7 +81,6 @@ app.post('/submit-audit', (req, res) => {
       "Roof Orientation": d.roofOrientation,
       "Panel Capacity (kW)": d.panelCapacity,
     },
-
     "Appliance Data Per Room": (
       Array.isArray(d.applianceRooms)
         ? d.applianceRooms.map(room => ({
@@ -87,7 +90,6 @@ app.post('/submit-audit', (req, res) => {
           }))
         : []
     ),
-
     "Behavioral/Operational": {
       "Awareness": d.awareness,
       "Use of Energy Features": d.energyFeatures,
@@ -95,31 +97,28 @@ app.post('/submit-audit', (req, res) => {
     }
   };
 
-  let allSubmissions = loadSubmissions();
+  const allSubmissions = loadSubmissions();
   allSubmissions.push(labeledSubmission);
   saveSubmissions(allSubmissions);
 
   res.json({ status: 'success', id: submissionId });
 });
 
-// Get all submissions or only those after a timestamp (delta fetch)
+// GET: All or filtered submissions
 app.get('/submissions', (req, res) => {
   let allSubmissions = loadSubmissions();
-
-  // Optional: filter by ?since=ISO_TIMESTAMP
   const { since } = req.query;
   if (since) {
     allSubmissions = allSubmissions.filter(sub =>
       new Date(sub.timestamp) > new Date(since)
     );
   }
-
   res.json(allSubmissions);
 });
 
-// Get one submission by ID
+// GET: Individual submission
 app.get('/submissions/:id', (req, res) => {
-  let allSubmissions = loadSubmissions();
+  const allSubmissions = loadSubmissions();
   const submission = allSubmissions.find(s => s.id === req.params.id);
   if (submission) {
     res.json(submission);
@@ -128,7 +127,7 @@ app.get('/submissions/:id', (req, res) => {
   }
 });
 
-// Optional: clear all submissions (e.g. after local fetch)
+// POST: Clear all submissions
 app.post('/clear-submissions', (req, res) => {
   saveSubmissions([]);
   res.json({ message: 'Submissions cleared' });
