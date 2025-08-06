@@ -7,6 +7,35 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const submissionsFile = path.join(__dirname, 'submissions.json');
 
+// ---- BASIC AUTH MIDDLEWARE ----
+const base64 = require('buffer').Buffer;
+
+const USERNAME = 'your_username';   // <-- set your real username
+const PASSWORD = 'your_password';   // <-- set your real password
+
+app.use((req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    res.set('WWW-Authenticate', 'Basic realm="401"');
+    return res.status(401).send('Authentication required.');
+  }
+  const base64Credentials = authHeader.split(' ')[1];
+  if (!base64Credentials) {
+    res.set('WWW-Authenticate', 'Basic realm="401"');
+    return res.status(401).send('Authentication required.');
+  }
+  const credentials = base64.from(base64Credentials, 'base64').toString('ascii');
+  const [username, password] = credentials.split(':');
+  if (username === USERNAME && password === PASSWORD) {
+    return next();
+  } else {
+    res.set('WWW-Authenticate', 'Basic realm="401"');
+    return res.status(401).send('Authentication required.');
+  }
+});
+// ---- END AUTH MIDDLEWARE ----
+
+
 // ✅ Serve static files from "public" folder
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -136,3 +165,4 @@ app.post('/clear-submissions', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
+
