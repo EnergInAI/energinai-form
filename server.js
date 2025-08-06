@@ -10,8 +10,8 @@ const submissionsFile = path.join(__dirname, 'submissions.json');
 // ---- BASIC AUTH MIDDLEWARE ----
 const base64 = require('buffer').Buffer;
 
-const USERNAME = 'your_username';   // <-- set your real username
-const PASSWORD = 'your_password';   // <-- set your real password
+const USERNAME = 'energinai@25';   // <-- set your real username
+const PASSWORD = 'energinai@25';   // <-- set your real password
 
 app.use((req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -165,4 +165,5 @@ app.post('/clear-submissions', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
+
 
