@@ -126,7 +126,11 @@ app.post('/clear-submissions', (req, res) => {
   saveSubmissions([]);
   res.json({ message: 'Submissions cleared' });
 });
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
