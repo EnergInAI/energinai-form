@@ -7,7 +7,14 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const submissionsFile = path.join(__dirname, 'submissions.json');
 
+// Serve the form HTML at the root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Middleware for JSON and URL-encoded form
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(require('cors')());
 
 // Utility: Load all submissions from file
@@ -126,8 +133,7 @@ app.post('/clear-submissions', (req, res) => {
   saveSubmissions([]);
   res.json({ message: 'Submissions cleared' });
 });
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-
