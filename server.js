@@ -10,8 +10,8 @@ const submissionsFile = path.join(__dirname, 'submissions.json');
 // ---- BASIC AUTH MIDDLEWARE ----
 const base64 = require('buffer').Buffer;
 
-const USERNAME = 'energinai_03';   // <-- set your real username
-const PASSWORD = 'energinai_03';   // <-- set your real password
+const USERNAME = 'energinai_03';
+const PASSWORD = 'energinai_03';
 
 app.use((req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -35,26 +35,20 @@ app.use((req, res, next) => {
 });
 // ---- END AUTH MIDDLEWARE ----
 
-
-// ✅ Serve static files from "public" folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ Route for home page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Optional: route for new.html if you use it separately
 app.get('/new', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'new.html'));
 });
 
-// Middleware for JSON and form handling
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(require('cors')());
 
-// Load submissions
 function loadSubmissions() {
   try {
     if (fs.existsSync(submissionsFile)) {
@@ -66,7 +60,6 @@ function loadSubmissions() {
   return [];
 }
 
-// Save submissions
 function saveSubmissions(allSubmissions) {
   fs.writeFileSync(submissionsFile, JSON.stringify(allSubmissions, null, 2), 'utf-8');
 }
@@ -76,10 +69,13 @@ app.post('/submit-audit', (req, res) => {
   const d = req.body;
   const submissionId = randomUUID();
 
+  // Store all basic and extra fields, mapping them to the form structure
   const labeledSubmission = {
     id: submissionId,
     timestamp: new Date().toISOString(),
+
     "Basic Information": {
+      "IVRS Number": d.ivrs || "",
       "Owner Name": d.owner,
       "Built-up Area": d.builtUpArea,
       "Number of Floors": d.floors,
@@ -88,28 +84,33 @@ app.post('/submit-audit', (req, res) => {
       "Occupancy": d.occupancy,
       "Climate Zone": d.climateZone,
     },
+
     "Building Envelope": {
       "Wall Type/Insulation": d.wallInsulation,
       "Roof Type/Insulation": d.roofInsulation,
       "Window Type": d.windowType,
-      "Window to Wall Ratio": d.windowWallRatio,
-      "Presence of Shading": d.shading,
+      // Window-to-wall dynamic data, array of entries
+      "Room-wise Window to Wall Ratio": d.windowWallRooms || [],
     },
+
     "Energy Consumption": {
-      "Monthly kWh": d.monthlyKwh,
-      "Monthly Bill (INR)": d.monthlyBill,
+      "Contract Demand (kWh)": d.contractDemand,
       "Meter Type": d.meterType,
-      "Net Metering": d.netMetering,
-      "Tariff Slabs": d.tariff,
-      "Peak Billing Months": d.peakMonths,
+      "Net Metering Present": d.netMetering,
+      "Monthly Consumption & Bill": d.monthlyBills || [],
+      "Peak Billing Month": d.peakBillingMonth || "",
     },
+
     "Solar Feasibility": {
       "Existing Solar System": d.solarExists,
-      "Available Roof Area (sq.m)": d.roofArea,
-      "Shadow Analysis": d.shadowAnalysis,
+      "Available Roof Area (m²)": d.roofArea,
+      "Shadowed Area (m²)": d.shadowArea,
+      "No Shadow Area (m²)": d.noShadowArea,
+      "Calculated Installation Area (m²)": d.usableSolarArea,
       "Roof Orientation": d.roofOrientation,
-      "Panel Capacity (kW)": d.panelCapacity,
+      "Electric Panel Capacity (kW)": d.panelCapacity,
     },
+
     "Appliance Data Per Room": (
       Array.isArray(d.applianceRooms)
         ? d.applianceRooms.map(room => ({
@@ -119,11 +120,15 @@ app.post('/submit-audit', (req, res) => {
           }))
         : []
     ),
+
     "Behavioral/Operational": {
-      "Awareness": d.awareness,
-      "Use of Energy Features": d.energyFeatures,
+      "Awareness of Energy Saving": d.awareness,
+      "Use of Energy Saving Features": d.energyFeatures,
       "Control Type": d.controlType,
-    }
+    },
+
+    // For full future-proofing:
+    "_RAW_POST": d   // optional: comment this out if you do not want raw post backup
   };
 
   const allSubmissions = loadSubmissions();
@@ -165,6 +170,3 @@ app.post('/clear-submissions', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-
-
