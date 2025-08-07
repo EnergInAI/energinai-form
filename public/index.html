@@ -566,11 +566,15 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
   }
   const formData = new FormData(form);
   const json = {};
-  // Main fields
+  // Main fields (all basic input values)
   formData.forEach((val, key) => {
-    if (json[key]) { if (!Array.isArray(json[key])) json[key] = [json[key]]; json[key].push(val); }
+    if (json[key]) {
+      if (!Array.isArray(json[key])) json[key] = [json[key]];
+      json[key].push(val);
+    }
     else { json[key] = val; }
   });
+
   // Appliance rooms + data
   const applianceRooms = [];
   document.querySelectorAll('.room-section').forEach((roomDiv, idx) => {
@@ -595,6 +599,34 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
   });
   json['applianceRooms'] = applianceRooms;
 
+  // ===== ADDITIONAL DATA COLLECTION =====
+
+  // Window-to-wall ratio (Section 2)
+  const windowWallRooms = [];
+  document.querySelectorAll('#windowWallRooms > div').forEach(div => {
+    const room = div.querySelector('select').value;
+    const wall = div.querySelector('input[id^="wall_"]').value;
+    const windowSize = div.querySelector('input[id^="window_"]').value;
+    const ratio = div.querySelector('input[id^="wwr_"]').value;
+    windowWallRooms.push({ room, wall, window: windowSize, ratio });
+  });
+  json['windowWallRooms'] = windowWallRooms;
+
+  // Monthly consumption & bill (Section 3)
+  const monthlyBills = [];
+  document.querySelectorAll('#monthlyConsumption > div').forEach(div => {
+    const month = div.querySelector('select').value;
+    const kwh = div.querySelector('input[name$="_kwh"]').value;
+    const bill = div.querySelector('input[name$="_bill"]').value;
+    monthlyBills.push({ month, kwh, bill });
+  });
+  json['monthlyBills'] = monthlyBills;
+
+  // Peak billing month
+  json['peakBillingMonth'] = document.getElementById('peakBillingMonth').value || '';
+
+  // ===== END ADDITIONS =====
+
   // This is where you POST the data; feel free to adjust this endpoint
   try {
     const resp = await fetch('/submit-audit', {
@@ -615,6 +647,7 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
     } else { alert('Submission failed.'); }
   } catch (err) { alert('Network/server error: ' + err.message); }
 });
+
 
 // OFFLINE BACKUP: Download the current form data (including dynamic data) as JSON
 function downloadCurrentAudit() {
