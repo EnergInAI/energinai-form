@@ -156,6 +156,11 @@
       <section class="form-section">
         <h4>3. Energy Consumption</h4>
         <div class="mb-3">
+          <label class="form-label required">Current Meter Reading (kWh)</label>
+          <input name="currentMeterReading" type="number" step="0.01" min="0" class="form-control" required />
+          <div class="invalid-feedback">Required</div>
+        </div>
+        <div class="mb-3">
           <label class="form-label required">Contract Demand (kWh)</label>
           <input name="contractDemand" type="number" step="0.01" min="0" class="form-control" required />
           <div class="invalid-feedback">Required</div>
