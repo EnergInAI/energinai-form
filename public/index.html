@@ -55,16 +55,31 @@
       <!-- 1. Basic Info -->
       <section class="form-section">
         <h4>1. Basic Information</h4>
+        
+        <div class="mb-3">
+          <label for="owner" class="form-label required">Name Of House Owner</label>
+          <input type="text" id="owner" name="owner" class="form-control" required />
+          <div class="invalid-feedback">Please enter the owner's name.</div>
+        </div>
+        
+        <div class="mb-3">
+          <label for="ownerContact" class="form-label required">Owner Contact Number</label>
+          <input type="tel" id="ownerContact" name="ownerContact" pattern="^[0-9]{10}$" 
+                 inputmode="numeric" class="form-control" maxlength="10" required />
+          <div class="invalid-feedback">Please enter a valid 10-digit contact number.</div>
+        </div>
+        
+        <div class="mb-3">
+          <label for="ownerAddress" class="form-label required">Owner Address</label>
+          <textarea id="ownerAddress" name="ownerAddress" class="form-control" rows="2" required></textarea>
+          <div class="invalid-feedback">Please enter the owner's address.</div>
+        </div>
+        
         <div class="mb-3">
           <label for="ivrs" class="form-label required">IVRS Number</label>
           <input type="text" id="ivrs" name="ivrs" pattern="^[0-9]+$" inputmode="numeric"
                  class="form-control" maxlength="20" required />
           <div class="invalid-feedback">Please enter a valid numeric IVRS Number.</div>
-        </div>
-        <div class="mb-3">
-          <label for="owner" class="form-label required">Name Of House Owner</label>
-          <input type="text" id="owner" name="owner" class="form-control" required />
-          <div class="invalid-feedback">Please enter the owner's name.</div>
         </div>
         <div class="mb-3">
           <label for="builtUpArea" class="form-label required">Built-up Area (m²)</label>
