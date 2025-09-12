@@ -1,3 +1,4 @@
+// ... same imports as before ...
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -67,7 +68,11 @@ function saveSubmissions(allSubmissions) {
 // POST: Submit new audit
 app.post('/submit-audit', (req, res) => {
   const d = req.body;
-  const submissionId = randomUUID();
+
+  // ✅ Use phone number as ID if available, otherwise fallback to UUID
+  const submissionId = (d.ownerContact && d.ownerContact.trim() !== "")
+    ? d.ownerContact.trim()
+    : randomUUID();
 
   // Store all basic and extra fields, mapping them to the form structure
   const labeledSubmission = {
@@ -77,6 +82,8 @@ app.post('/submit-audit', (req, res) => {
     "Basic Information": {
       "IVRS Number": d.ivrs || "",
       "Owner Name": d.owner,
+      "Owner Contact": d.ownerContact || "",
+      "Owner Address": d.ownerAddress || "",
       "Built-up Area": d.builtUpArea,
       "Number of Floors": d.floors,
       "Year of Construction": d.constructionYear,
@@ -89,7 +96,6 @@ app.post('/submit-audit', (req, res) => {
       "Wall Type/Insulation": d.wallInsulation,
       "Roof Type/Insulation": d.roofInsulation,
       "Window Type": d.windowType,
-      // Window-to-wall dynamic data, array of entries
       "Room-wise Window to Wall Ratio": d.windowWallRooms || [],
     },
 
@@ -127,8 +133,7 @@ app.post('/submit-audit', (req, res) => {
       "Control Type": d.controlType,
     },
 
-    // For full future-proofing:
-    "_RAW_POST": d   // optional: comment this out if you do not want raw post backup
+    "_RAW_POST": d
   };
 
   const allSubmissions = loadSubmissions();
